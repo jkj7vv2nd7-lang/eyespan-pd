@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#081c2c">
+<title>EyeSpan PD</title>
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<style>
+:root{
+  --bg:#081c2c; --bg2:#0b2438; --panel:#0e2a3f; --panel2:#12334d;
+  --line:#1d4a66; --cyan:#22d3ee; --cyan2:#67e8f9; --txt:#e6f4fa; --sub:#9fc3d4;
+  --warn:#fbbf24; --bad:#f87171; --good:#34d399;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
+  color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,system-ui,sans-serif;
+  min-height:100vh;
+}
+.wrap{max-width:560px;margin:0 auto;padding:14px 14px 30px;}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 2px 10px;}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo svg{flex:none;}
+.logo .name{font-size:22px;font-weight:800;letter-spacing:2.5px;color:#fff;}
+.logo .name span{color:var(--cyan);}
+.logo .tag{font-size:11px;color:var(--sub);letter-spacing:.4px;margin-top:1px;}
+button{font-family:inherit;cursor:pointer;}
+.btn{
+  display:inline-block;border:1px solid var(--line);background:var(--panel2);color:var(--txt);
+  border-radius:12px;padding:12px 16px;font-size:15px;font-weight:600;line-height:1.25;
+}
+.btn:active{transform:translateY(1px);}
+.btn.primary{background:var(--cyan);border-color:var(--cyan);color:#04222e;}
+.btn.primary:disabled{background:#33566b;border-color:#33566b;color:#8fb2c2;cursor:not-allowed;}
+.btn.ghost{background:transparent;}
+.btn.small{padding:8px 12px;font-size:13px;border-radius:10px;}
+.btn.danger{border-color:#7f2d3a;color:#fda4af;background:transparent;}
+.btn.block{display:block;width:100%;text-align:center;margin-top:10px;}
+#btnLang{border:1px solid var(--line);background:var(--panel);color:var(--cyan2);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;}
+.notice{
+  border:1px solid var(--line);background:rgba(34,211,238,.07);border-radius:12px;
+  padding:9px 12px;font-size:12px;line-height:1.55;color:var(--sub);margin-bottom:12px;
+}
+.notice b{color:var(--cyan2);}
+.steps{display:flex;gap:6px;margin:4px 0 12px;}
+.step{
+  flex:1;text-align:center;padding:8px 2px;border-radius:10px;border:1px solid var(--line);
+  background:var(--panel);color:var(--sub);font-size:12px;font-weight:700;line-height:1.3;
+}
+.step .n{display:block;font-size:15px;}
+.step.active{border-color:var(--cyan);color:#04222e;background:var(--cyan);}
+.step.done{color:var(--cyan2);border-color:var(--cyan);}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;}
+.card h2{margin:0 0 10px;font-size:17px;color:#fff;}
+.card h3{margin:14px 0 6px;font-size:14px;color:var(--cyan2);}
+.card p{margin:6px 0;font-size:14px;line-height:1.65;color:var(--txt);}
+.card .small{font-size:12.5px;color:var(--sub);line-height:1.6;}
+ul.guide{margin:6px 0 6px 1.1em;padding:0;font-size:14px;line-height:1.7;}
+ul.guide li{margin:3px 0;}
+.status{font-size:13.5px;line-height:1.6;min-height:1.4em;color:var(--sub);margin-top:8px;white-space:pre-line;}
+.status.err{color:var(--bad);}
+.status.ok{color:var(--good);}
+.stage{
+  position:relative;width:100%;aspect-ratio:4/3;background:#000;border-radius:14px;overflow:hidden;
+  border:1px solid var(--line);margin-bottom:10px;
+}
+.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);}
+.stage .novideo{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+  color:var(--sub);font-size:13px;padding:16px;line-height:1.6;
+}
+.oval{
+  position:absolute;left:50%;top:50%;width:56%;height:78%;transform:translate(-50%,-50%);
+  border:2px dashed rgba(103,232,249,.75);border-radius:50%;pointer-events:none;
+}
+.cardframe{
+  position:absolute;border:2.5px solid var(--cyan);border-radius:8px;background:rgba(34,211,238,.10);
+  box-shadow:0 0 0 1px rgba(0,0,0,.35) inset;cursor:move;touch-action:none;
+}
+.cardframe .cf-label{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;
+  font-size:11.5px;font-weight:700;color:var(--cyan2);letter-spacing:.5px;pointer-events:none;
+  text-shadow:0 1px 3px #000;
+}
+input[type=range]{width:100%;accent-color:var(--cyan);}
+.radioRow{display:flex;gap:8px;margin:10px 0;}
+.radioRow label{
+  flex:1;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:13.5px;line-height:1.45;
+  background:var(--bg2);cursor:pointer;display:block;
+}
+.radioRow input{accent-color:var(--cyan);margin-right:6px;}
+.radioRow label.sel{border-color:var(--cyan);background:rgba(34,211,238,.10);}
+.badge{
+  display:inline-block;font-size:11px;font-weight:800;padding:2.5px 8px;border-radius:999px;vertical-align:middle;
+  border:1px solid var(--line);color:var(--sub);letter-spacing:.3px;
+}
+.badge.approx{color:#04222e;background:var(--warn);border-color:var(--warn);}
+.badge.high{color:#04222e;background:var(--good);border-color:var(--good);}
+.badge.medium{color:#04222e;background:var(--cyan);border-color:var(--cyan);}
+.badge.low{color:#04222e;background:var(--warn);border-color:var(--warn);}
+.badge.method{color:var(--cyan2);}
+.progress{height:12px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;overflow:hidden;margin:8px 0 4px;}
+.progress > div{height:100%;width:0%;background:var(--cyan);transition:width .18s ease;}
+.livePd{font-size:15px;color:var(--sub);}
+.livePd b{font-size:26px;color:#fff;}
+.confirmStage{position:relative;width:100%;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#000;line-height:0;}
+.confirmStage canvas{width:100%;height:auto;display:block;transform:scaleX(-1);}
+.marker{
+  position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2.5px solid #fff;background:rgba(34,211,238,.45);box-shadow:0 0 0 2px rgba(0,0,0,.45);
+  cursor:grab;touch-action:none;z-index:3;padding:0;
+}
+.marker::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:#fff;}
+.marker.sel{border-color:var(--warn);background:rgba(251,191,36,.5);}
+.marker.cardM{background:rgba(52,211,153,.45);}
+.marker.noseM{background:rgba(167,139,250,.5);}
+.marker .mlab{
+  position:absolute;left:50%;top:-17px;transform:translateX(-50%);font-size:10px;font-weight:800;color:#fff;
+  text-shadow:0 1px 3px #000;white-space:nowrap;line-height:1;
+}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0;}
+.chip{
+  border:1px solid var(--line);background:var(--bg2);color:var(--txt);border-radius:999px;
+  padding:7px 11px;font-size:12.5px;font-weight:700;
+}
+.chip.sel{border-color:var(--warn);color:var(--warn);}
+.pad{display:flex;align-items:center;gap:8px;justify-content:center;margin:6px 0 2px;}
+.pad button{
+  width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);
+  color:var(--cyan2);font-size:18px;font-weight:800;
+}
+.resultBig{text-align:center;padding:8px 0 2px;}
+.resultBig .pd{font-size:44px;font-weight:800;color:#fff;letter-spacing:.5px;}
+.resultBig .pd small{font-size:18px;color:var(--sub);}
+table.kv{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px;}
+table.kv td{padding:6px 4px;border-bottom:1px solid rgba(29,74,102,.6);}
+table.kv td:first-child{color:var(--sub);width:44%;}
+table.kv td:last-child{text-align:right;font-weight:700;color:#fff;}
+.histItem{
+  border:1px solid var(--line);background:var(--bg2);border-radius:12px;padding:10px 12px;margin:8px 0;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.histItem .main{flex:1;min-width:0;}
+.histItem .pd{font-size:20px;font-weight:800;color:#fff;}
+.histItem .meta{font-size:12px;color:var(--sub);line-height:1.55;margin-top:2px;}
+.histItem .del{flex:none;}
+footer{margin-top:18px;text-align:center;font-size:12.5px;color:var(--sub);line-height:1.7;}
+footer a{color:var(--cyan2);font-weight:700;}
+.hidden{display:none !important;}
+.rowBtns{display:flex;gap:8px;}
+.rowBtns .btn{flex:1;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="logo">
+      <svg width="34" height="34" viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="24" rx="21" ry="12.5" fill="none" stroke="#22d3ee" stroke-width="2.6"/><circle cx="24" cy="24" r="7.5" fill="#22d3ee"/><circle cx="24" cy="24" r="3.2" fill="#081c2c"/><circle cx="26.6" cy="21.4" r="1.7" fill="#e6f4fa"/></svg>
+      <div>
+        <div class="name">EYESPAN <span>PD</span></div>
+        <div class="tag" data-i18n="tagline">瞳孔間距離（PD）測定</div>
+      </div>
+    </div>
+    <button id="btnLang" type="button">EN</button>
+  </header>
+
+  <div class="notice" id="noticeBox">
+    <div>🔒 <b data-i18n="privT">プライバシー</b>：<span data-i18n="privB">映像は端末の中だけで処理し、外部に送信しません。保存されるのは測定値だけです。</span></div>
+    <div>⚠ <b data-i18n="medT">注意</b>：<span data-i18n="medB">医療機器ではありません。値は参考値です。正確な測定は眼科・眼鏡店などの専門家にご相談ください。</span></div>
+  </div>
+
+  <nav class="steps" id="stepsBar">
+    <div class="step" data-step="1"><span class="n">1</span><span data-i18n="step1">準備</span></div>
+    <div class="step" data-step="2"><span class="n">2</span><span data-i18n="step2">校正</span></div>
+    <div class="step" data-step="3"><span class="n">3</span><span data-i18n="step3">計測</span></div>
+    <div class="step" data-step="4"><span class="n">4</span><span data-i18n="step4">確認・結果</span></div>
+  </nav>
+
+  <!-- カメラ表示（ステップ2・3で共有） -->
+  <div id="stageWrap" class="hidden">
+    <div class="stage" id="stage">
+      <video id="cam" autoplay playsinline muted></video>
+      <div class="novideo" id="noVideo"><span data-i18n="camStarting">カメラ起動中…</span></div>
+      <div class="oval" id="ovalGuide"></div>
+      <div class="cardframe hidden" id="cardFrame"><span class="cf-label">CARD 85.60mm</span></div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <section id="panel1" class="card">
+    <h2 data-i18n="guideTitle">使い方</h2>
+    <ul class="guide">
+      <li data-i18n="g1">明るい場所で、正面から顔を映してください。眼鏡は外すと検出しやすくなります。</li>
+      <li data-i18n="g2">カメラとの距離は30〜40cmが目安です。顔を楕円ガイドに合わせてください。</li>
+      <li data-i18n="g3">カード校正では、クレジットカードなどの標準カード（幅85.60mm）を、目の高さで顔の横に当ててください。</li>
+      <li data-i18n="g4">計測は自動で25回分を集め、中央値で結果を出します。瞬きをした瞬間や、正面でない顔は自動で除外されます。</li>
+      <li data-i18n="g5">撮影のあとに確認画面が出ます。瞳孔・鼻・カード端の印（マーカー）は、指で動かしたり微調整ボタンで直したりできます。</li>
+      <li data-i18n="g6">カメラが使えないときは、顔写真をアップロードして測ることもできます。</li>
+      <li data-i18n="g7">顔検出の読み込みには、初回だけインターネット接続が必要です。</li>
+    </ul>
+    <button class="btn primary block" id="btnStartCamera" type="button" data-i18n="btnCamera">カメラで測定する</button>
+    <label class="btn ghost block" for="photoInput" data-i18n="btnPhoto">写真から測定する</label>
+    <input type="file" id="photoInput" accept="image/*" class="hidden">
+    <div class="status" id="initStatus"></div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section id="panel2" class="card hidden">
+    <h2 data-i18n="calibTitle">校正（大きさの基準を決める）</h2>
+    <p data-i18n="calibIntro">測る前に、画面の中の大きさをmmに直すための基準を決めます。方式を選んでください。</p>
+    <div class="radioRow">
+      <label id="lblMethodCard"><input type="radio" name="method" value="card" checked><b data-i18n="methodCard">カード校正</b><br><span class="small" data-i18n="methodCardD">標準カード（幅85.60mm）を枠に合わせて確定します。いちばん正確です。</span></label>
+      <label id="lblMethodIris"><input type="radio" name="method" value="iris"><b data-i18n="methodIris">虹彩方式</b> <span class="badge approx" data-i18n="approx">概算</span><br><span class="small" data-i18n="methodIrisD">虹彩の大きさ（11.7mm）を基準にします。カードが無いとき用で、値は概算です。</span></label>
+    </div>
+    <div id="cardCalibUI">
+      <p class="small" data-i18n="cardHow">カードを顔の横（目の高さ）に持ち、画面の青い枠とカードの大きさが重なるよう、スライダーで枠の幅を合わせてから「この幅で校正する」を押してください。枠はドラッグで動かせます。</p>
+      <input type="range" id="cardScale" min="30" max="92" value="62">
+      <button class="btn primary block" id="btnCardDone" type="button" data-i18n="btnCardDone">この幅で校正する</button>
+    </div>
+    <div id="irisCalibUI" class="hidden">
+      <p class="small" data-i18n="irisHow">虹彩（黒目の部分）の直径を11.7mmとして計算します。人によって差があるため、結果は必ず「概算」として表示されます。</p>
+      <button class="btn primary block" id="btnIrisDone" type="button" data-i18n="btnIrisDone">虹彩方式で計測へ</button>
+    </div>
+    <div class="rowBtns">
+      <button class="btn ghost" id="btnStopCam1" type="button" data-i18n="btnStop">カメラを止める</button>
+    </div>
+    <div class="status" id="calibStatus"></div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section id="panel3" class="card hidden">
+    <h2 data-i18n="measureTitle">計測</h2>
+    <p class="small" data-i18n="measureHow">顔を楕円ガイドに合わせ、正面を見てください。有効な測定を25回分まで自動で集めます。</p>
+    <div class="livePd"><span data-i18n="liveLabel">現在の推定</span>：<b id="livePdVal">--.-</b> mm <span class="badge approx hidden" id="liveApprox" data-i18n="approx">概算</span></div>
+    <div class="progress"><div id="sampleBar"></div></div>
+    <div class="small"><span data-i18n="samplesLabel">有効サンプル</span>：<span id="sampleCount">0</span> / 25</div>
+    <div class="status" id="measureStatus"></div>
+    <div class="rowBtns">
+      <button class="btn primary" id="btnFinishMeasure" type="button" disabled data-i18n="btnToConfirm">確認画面へ</button>
+      <button class="btn ghost" id="btnBackCalib" type="button" data-i18n="btnBack">校正に戻る</button>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section id="panel4" class="card hidden">
+    <h2 data-i18n="confirmTitle">確認と結果</h2>
+    <p class="small" data-i18n="confirmHow">印（マーカー）が瞳孔・鼻・カードの端に合っているか確認してください。印はドラッグで動かせます。ずれているときは直してから「再計算」を押してください。</p>
+    <div class="confirmStage" id="confirmStage">
+      <canvas id="stillCanvas" width="640" height="480"></canvas>
+    </div>
+    <div class="chips" id="markerChips"></div>
+    <div class="pad">
+      <button type="button" id="padL" aria-label="left">◀</button>
+      <button type="button" id="padU" aria-label="up">▲</button>
+      <button type="button" id="padD" aria-label="down">▼</button>
+      <button type="button" id="padR" aria-label="right">▶</button>
+    </div>
+    <div id="photoMethodRow" class="radioRow hidden">
+      <label id="lblPMethodCard"><input type="radio" name="pmethod" value="card"><b data-i18n="methodCard">カード校正</b></label>
+      <label id="lblPMethodIris"><input type="radio" name="pmethod" value="iris"><b data-i18n="methodIris">虹彩方式</b> <span class="badge approx" data-i18n="approx">概算</span></label>
+    </div>
+    <button class="btn block" id="btnRecalc" type="button" data-i18n="btnRecalc">再計算</button>
+    <div class="resultBig">
+      <div><span data-i18n="pdLabel">両眼PD</span> <span class="badge approx hidden" id="resApprox" data-i18n="approx">概算</span></div>
+      <div class="pd"><span id="resPd">--.-</span><small> mm</small></div>
+    </div>
+    <table class="kv">
+      <tr><td data-i18n="monoL">左目（単眼PD）</td><td><span id="resMonoL">--.-</span> mm</td></tr>
+      <tr><td data-i18n="monoR">右目（単眼PD）</td><td><span id="resMonoR">--.-</span> mm</td></tr>
+      <tr><td data-i18n="confLabel">信頼度</td><td><span class="badge" id="resConf">-</span></td></tr>
+      <tr><td data-i18n="spreadLabel">ばらつき（IQR）</td><td><span id="resSpread">-.-</span> mm</td></tr>
+      <tr><td data-i18n="methodLabel">方式</td><td><span id="resMethod">-</span></td></tr>
+      <tr><td data-i18n="samplesLabel2">サンプル数</td><td><span id="resSamples">-</span></td></tr>
+    </table>
+    <button class="btn primary block" id="btnSave" type="button" data-i18n="btnSave">履歴に保存する</button>
+    <button class="btn ghost block" id="btnAgain" type="button" data-i18n="btnAgain">もう一度測る</button>
+    <div class="status" id="saveStatus"></div>
+  </section>
+
+  <!-- 履歴 -->
+  <section class="card" id="historyCard">
+    <h2 data-i18n="histTitle">測定履歴</h2>
+    <div id="historyList"></div>
+    <p class="small" id="historyEmpty" data-i18n="histEmpty">まだ履歴がありません。</p>
+    <button class="btn danger small hidden" id="btnClearHistory" type="button" data-i18n="histClear">履歴をすべて消す</button>
+  </section>
+
+  <footer>
+    <div><span data-i18n="footText">このアプリは Muse と一緒に作りました。</span></div>
+    <div><a href="https://muse.ai/join" target="_blank" rel="noopener">Muse</a> ／ <span data-i18n="footCode">紹介コード</span>：<b>84A2JY</b></div>
+  </footer>
+
+</div>
+
+<script type="module">
+"use strict";
+/* ================= i18n ================= */
+const I18N = {
+ja:{
+  tagline:"瞳孔間距離（PD）測定", privT:"プライバシー",
+  privB:"映像は端末の中だけで処理し、外部に送信しません。保存されるのは測定値だけです。",
+  medT:"注意", medB:"医療機器ではありません。値は参考値です。正確な測定は眼科・眼鏡店などの専門家にご相談ください。",
+  step1:"準備", step2:"校正", step3:"計測", step4:"確認・結果",
+  camStarting:"カメラ起動中…",
+  guideTitle:"使い方",
+  g1:"明るい場所で、正面から顔を映してください。眼鏡は外すと検出しやすくなります。",
+  g2:"カメラとの距離は30〜40cmが目安です。顔を楕円ガイドに合わせてください。",
+  g3:"カード校正では、クレジットカードなどの標準カード（幅85.60mm）を、目の高さで顔の横に当ててください。",
+  g4:"計測は自動で25回分を集め、中央値で結果を出します。瞬きをした瞬間や、正面でない顔は自動で除外されます。",
+  g5:"撮影のあとに確認画面が出ます。瞳孔・鼻・カード端の印（マーカー）は、指で動かしたり微調整ボタンで直したりできます。",
+  g6:"カメラが使えないときは、顔写真をアップロードして測ることもできます。",
+  g7:"顔検出の読み込みには、初回だけインターネット接続が必要です。",
+  btnCamera:"カメラで測定する", btnPhoto:"写真から測定する",
+  calibTitle:"校正（大きさの基準を決める）",
+  calibIntro:"測る前に、画面の中の大きさをmmに直すための基準を決めます。方式を選んでください。",
+  methodCard:"カード校正", methodCardD:"標準カード（幅85.60mm）を枠に合わせて確定します。いちばん正確です。",
+  methodIris:"虹彩方式", methodIrisD:"虹彩の大きさ（11.7mm）を基準にします。カードが無いとき用で、値は概算です。",
+  approx:"概算",
+  cardHow:"カードを顔の横（目の高さ）に持ち、画面の青い枠とカードの大きさが重なるよう、スライダーで枠の幅を合わせてから「この幅で校正する」を押してください。枠はドラッグで動かせます。",
+  btnCardDone:"この幅で校正する",
+  irisHow:"虹彩（黒目の部分）の直径を11.7mmとして計算します。人によって差があるため、結果は必ず「概算」として表示されます。",
+  btnIrisDone:"虹彩方式で計測へ", btnStop:"カメラを止める",
+  measureTitle:"計測",
+  measureHow:"顔を楕円ガイドに合わせ、正面を見てください。有効な測定を25回分まで自動で集めます。",
+  liveLabel:"現在の推定", samplesLabel:"有効サンプル",
+  btnToConfirm:"確認画面へ", btnBack:"校正に戻る",
+  confirmTitle:"確認と結果",
+  confirmHow:"印（マーカー）が瞳孔・鼻・カードの端に合っているか確認してください。印はドラッグで動かせます。ずれているときは直してから「再計算」を押してください。",
+  pdLabel:"両眼PD", monoL:"左目（単眼PD）", monoR:"右目（単眼PD）",
+  confLabel:"信頼度", spreadLabel:"ばらつき（IQR）", methodLabel:"方式", samplesLabel2:"サンプル数",
+  btnRecalc:"再計算", btnSave:"履歴に保存する", btnAgain:"もう一度測る",
+  histTitle:"測定履歴", histEmpty:"まだ履歴がありません。", histClear:"履歴をすべて消す",
+  footText:"このアプリは Muse と一緒に作りました。", footCode:"紹介コード",
+  loadingLib:"顔検出ライブラリとモデルを読み込んでいます…（初回は少し時間がかかります）",
+  libFail:"顔検出ライブラリを読み込めませんでした。インターネット接続を確認して、ページを再読み込みしてください。",
+  camFail:"カメラを開始できませんでした。ブラウザのカメラ許可を確認してください。下の「写真から測定する」でも測れます。",
+  noFacePhoto:"写真から顔を検出できませんでした。正面を向いた明るい写真で試してください。",
+  photoLoaded:"写真を読み込みました。",
+  searching:"顔を探しています…楕円ガイドに顔を合わせてください。",
+  blinkWarn:"瞬きを検出した瞬間は除外しています。そのまま正面を見ていてください。",
+  frontWarn:"正面を向いてください（顔の向きが大きい瞬間は除外しています）。",
+  goodPose:"そのまま正面を見ていてください。自動で集めています。",
+  cardCalibDone:"カード校正ができました。計測を始めます。",
+  mkPL:"左の瞳孔", mkPR:"右の瞳孔", mkNose:"鼻", mkCL:"カード左端", mkCR:"カード右端",
+  confHigh:"高い", confMedium:"ふつう", confLow:"低い",
+  savedOk:"履歴に保存しました。",
+  saveRangeErr:"値が保存できる範囲（PD 30〜100mm、単眼 10〜60mm、ばらつき 0〜50mm）を超えているため保存できませんでした。マーカーの位置を確認してください。",
+  alreadySaved:"この結果は保存済みです。",
+  confirmClear:"履歴をすべて消します。よろしいですか？",
+  delBtn:"削除",
+  histSamples:"サンプル",
+  needCam:"先にカメラを開始してください。",
+  capturing:"撮影しました。確認画面でマーカーを合わせてください。"
+},
+en:{
+  tagline:"Pupillary distance (PD) measurement", privT:"Privacy",
+  privB:"Video is processed only on this device and is never sent anywhere. Only measurement values are saved.",
+  medT:"Note", medB:"This is not a medical device. Values are for reference only. For an accurate measurement, please consult an eye care professional.",
+  step1:"Prepare", step2:"Calibrate", step3:"Measure", step4:"Review",
+  camStarting:"Starting camera…",
+  guideTitle:"How to use",
+  g1:"Face the camera from the front in a bright place. Removing glasses makes detection easier.",
+  g2:"Keep about 30–40 cm between your face and the camera, and fit your face inside the oval guide.",
+  g3:"For card calibration, hold a standard card (85.60 mm wide, e.g. a credit card) beside your face at eye level.",
+  g4:"The app automatically collects 25 valid samples and uses the median. Blinks and non-frontal faces are excluded automatically.",
+  g5:"After capture, a review screen appears. You can drag the markers for the pupils, nose and card edges, or nudge them with the fine-adjust buttons.",
+  g6:"If the camera is unavailable, you can also measure from an uploaded face photo.",
+  g7:"An internet connection is required the first time, to load the face detection library and model.",
+  btnCamera:"Measure with camera", btnPhoto:"Measure from a photo",
+  calibTitle:"Calibration (setting the scale)",
+  calibIntro:"Before measuring, choose how to convert on-screen size to millimeters.",
+  methodCard:"Card calibration", methodCardD:"Align a standard card (85.60 mm wide) with the frame. This is the most accurate method.",
+  methodIris:"Iris method", methodIrisD:"Uses the iris size (11.7 mm) as the reference. Use when you have no card; results are approximate.",
+  approx:"Approx.",
+  cardHow:"Hold the card beside your face (at eye level), adjust the slider so the blue frame matches the card on screen, then tap “Calibrate with this width”. You can drag the frame to move it.",
+  btnCardDone:"Calibrate with this width",
+  irisHow:"The iris (dark part of the eye) diameter is assumed to be 11.7 mm. Because this varies by person, results are always shown as approximate.",
+  btnIrisDone:"Measure with iris method", btnStop:"Stop camera",
+  measureTitle:"Measuring",
+  measureHow:"Fit your face in the oval guide and look straight ahead. The app collects 25 valid samples automatically.",
+  liveLabel:"Current estimate", samplesLabel:"Valid samples",
+  btnToConfirm:"Go to review", btnBack:"Back to calibration",
+  confirmTitle:"Review & result",
+  confirmHow:"Check that the markers sit on the pupils, nose and card edges. Drag markers to move them; if they are off, fix them and tap “Recalculate”.",
+  pdLabel:"Binocular PD", monoL:"Left eye (monocular PD)", monoR:"Right eye (monocular PD)",
+  confLabel:"Confidence", spreadLabel:"Spread (IQR)", methodLabel:"Method", samplesLabel2:"Samples",
+  btnRecalc:"Recalculate", btnSave:"Save to history", btnAgain:"Measure again",
+  histTitle:"History", histEmpty:"No history yet.", histClear:"Delete all history",
+  footText:"This app was built together with Muse.", footCode:"Referral code",
+  loadingLib:"Loading the face detection library and model… (the first time may take a while)",
+  libFail:"Could not load the face detection library. Check your internet connection and reload the page.",
+  camFail:"Could not start the camera. Please check the browser's camera permission. You can also use “Measure from a photo” below.",
+  noFacePhoto:"No face was detected in the photo. Try a bright, front-facing photo.",
+  photoLoaded:"Photo loaded.",
+  searching:"Looking for your face… fit it inside the oval guide.",
+  blinkWarn:"Blink frames are being excluded. Keep looking straight ahead.",
+  frontWarn:"Please face forward (frames with a large head turn are excluded).",
+  goodPose:"Keep looking straight ahead. Collecting samples automatically.",
+  cardCalibDone:"Card calibration done. Starting measurement.",
+  mkPL:"Left pupil", mkPR:"Right pupil", mkNose:"Nose", mkCL:"Card left edge", mkCR:"Card right edge",
+  confHigh:"High", confMedium:"Medium", confLow:"Low",
+  savedOk:"Saved to history.",
+  saveRangeErr:"The values are outside the savable range (PD 30–100 mm, monocular 10–60 mm, spread 0–50 mm), so they were not saved. Please check the marker positions.",
+  alreadySaved:"This result is already saved.",
+  confirmClear:"Delete all history?",
+  delBtn:"Delete",
+  histSamples:"samples",
+  needCam:"Please start the camera first.",
+  capturing:"Captured. Align the markers on the review screen."
+}};
+const LANG_KEY = "pd-lang";
+const HIST_KEY = "eyespan-pd-history";
+let lang = "ja";
+try{ lang = localStorage.getItem(LANG_KEY) || "ja"; }catch(e){}
+if(lang !== "en") lang = "ja";
+const t = k => (I18N[lang] && I18N[lang][k]) || I18N.ja[k] || k;
+const $ = s => document.querySelector(s);
+
+/* ================= 状態 ================= */
+const MIN_SAMPLES = 25, CARD_MM = 85.60, IRIS_MM = 11.7;
+const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+const WASM_URL  = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm";
+const BUNDLE_URL= "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+
+const S = {
+  step: 1,
+  method: "card",          // 'card' | 'iris'
+  mmPerPx: null,           // card校正の倍率
+  irisMmPerPx: null,       // 虹彩方式の倍率（直近）
+  samples: [],             // {pd, monoL, monoR} mm
+  faceState: "searching",  // searching | blink | notfront | ok
+  lastLm: null,            // 直近のランドマーク（分数座標）
+  lastIrisDiaPx: null,
+  result: null,            // {pd, monoL, monoR, confidence, spread, samples, method}
+  markers: null,           // {pl,pr,nose,cl,cr} 分数座標
+  selMarker: "pl",
+  stillFrom: null,         // 'video' | 'photo'
+  savedCurrent: false
+};
+
+/* ================= 履歴 ================= */
+function loadHistory(){
+  try{ const v = JSON.parse(localStorage.getItem(HIST_KEY) || "[]"); return Array.isArray(v) ? v : []; }
+  catch(e){ return []; }
+}
+function storeHistory(h){
+  try{ localStorage.setItem(HIST_KEY, JSON.stringify(h.slice(0,30))); }catch(e){}
+}
+function fmtDate(ts){
+  try{ return new Date(ts).toLocaleString(lang === "en" ? "en-US" : "ja-JP"); }catch(e){ return String(ts); }
+}
+function renderHistory(){
+  const h = loadHistory();
+  const list = $("#historyList"); list.innerHTML = "";
+  $("#historyEmpty").classList.toggle("hidden", h.length > 0);
+  $("#btnClearHistory").classList.toggle("hidden", h.length === 0);
+  h.forEach((it, idx) => {
+    const div = document.createElement("div"); div.className = "histItem";
+    const confBadge = `<span class="badge ${it.confidence}">${t("conf" + it.confidence[0].toUpperCase() + it.confidence.slice(1))}</span>`;
+    const mBadge = `<span class="badge method">${it.method === "card" ? t("methodCard") : t("methodIris")}</span>`;
+    const aBadge = it.method === "iris" ? ` <span class="badge approx">${t("approx")}</span>` : "";
+    div.innerHTML = `<div class="main">
+        <div class="pd">${Number(it.pd_mm).toFixed(1)} mm ${aBadge}</div>
+        <div class="meta">${fmtDate(it.created_at)}<br>
+        ${t("monoL")} ${Number(it.mono_left_mm).toFixed(1)} mm ／ ${t("monoR")} ${Number(it.mono_right_mm).toFixed(1)} mm<br>
+        ${mBadge} ${confBadge} ・ ${t("spreadLabel")} ${Number(it.spread_mm).toFixed(1)} mm ・ ${t("histSamples")} ${it.sample_count}</div>
+      </div>
+      <button class="btn danger small del" type="button">${t("delBtn")}</button>`;
+    div.querySelector(".del").addEventListener("click", () => {
+      const cur = loadHistory(); cur.splice(idx, 1); storeHistory(cur); renderHistory();
+    });
+    list.appendChild(div);
+  });
+}
+$("#btnClearHistory").addEventListener("click", () => {
+  if(window.confirm(t("confirmClear"))){ storeHistory([]); renderHistory(); }
+});
+
+/* ================= 言語 ================= */
+function applyI18n(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  $("#btnLang").textContent = lang === "ja" ? "EN" : "日本語";
+  document.querySelectorAll(".status").forEach(el => {
+    if(el.id !== "measureStatus" && el.dataset.key) el.textContent = t(el.dataset.key);
+  });
+  renderSteps(); renderHistory(); renderMeasureStatus();
+  if(S.result) renderResult();
+  buildMarkerChips(); syncMethodUI(); syncPhotoMethodUI();
+}
+$("#btnLang").addEventListener("click", () => {
+  lang = lang === "ja" ? "en" : "ja";
+  try{ localStorage.setItem(LANG_KEY, lang); }catch(e){}
+  applyI18n();
+});
+
+/* ================= ステップ ================= */
+function goStep(n){
+  S.step = n;
+  for(let i = 1; i <= 4; i++) $("#panel" + i).classList.toggle("hidden", i !== n);
+  $("#stageWrap").classList.toggle("hidden", !(n === 2 || n === 3));
+  $("#ovalGuide").classList.toggle("hidden", n !== 3);
+  $("#cardFrame").classList.toggle("hidden", !(n === 2 && S.method === "card"));
+  renderSteps();
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+function renderSteps(){
+  document.querySelectorAll("#stepsBar .step").forEach(el => {
+    const n = Number(el.dataset.step);
+    el.classList.toggle("active", n === S.step);
+    el.classList.toggle("done", n < S.step);
+  });
+}
+function setStatus(el, key, isErr){
+  el.dataset.key = key || "";
+  el.textContent = key ? t(key) : "";
+  el.classList.toggle("err", !!isErr);
+  el.classList.toggle("ok", !isErr && !!key);
+}
+
+/* ================= 数値ユーティリティ ================= */
+function dist(a, b){ const dx = a.x - b.x, dy = a.y - b.y; return Math.hypot(dx, dy); }
+function medianOf(a){ const s = [...a].sort((x, y) => x - y); const n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; }
+function quantileOf(sorted, q){ const pos = (sorted.length - 1) * q; const base = Math.floor(pos); const rest = pos - base; return sorted[base] + (sorted[base + 1] !== undefined ? (sorted[base + 1] - sorted[base]) * rest : 0); }
+const clamp01 = v => Math.min(0.99, Math.max(0.01, v));
+
+/* ================= MediaPipe Face Landmarker ================= */
+let visionMod = null, fileset = null, lmVideo = null, lmImage = null;
+let stream = null, rafId = null, lastTs = 0, measuring = false;
+
+async function loadVision(){
+  if(visionMod) return;
+  visionMod = await import(BUNDLE_URL);
+  fileset = await visionMod.FilesetResolver.forVisionTasks(WASM_URL);
+}
+async function makeLandmarker(mode){
+  await loadVision();
+  const opts = delegate => ({
+    baseOptions: { modelAssetPath: MODEL_URL, delegate },
+    runningMode: mode, numFaces: 1,
+    minFaceDetectionConfidence: 0.5, minFacePresenceConfidence: 0.5, minTrackingConfidence: 0.5,
+    outputFaceBlendshapes: true, outputFacialTransformationMatrixes: true
+  });
+  try{ return await visionMod.FaceLandmarker.createFromOptions(fileset, opts("GPU")); }
+  catch(e){ return await visionMod.FaceLandmarker.createFromOptions(fileset, opts("CPU")); }
+}
+async function getLm(mode){
+  if(mode === "VIDEO"){ if(!lmVideo) lmVideo = await makeLandmarker("VIDEO"); return lmVideo; }
+  if(!lmImage) lmImage = await makeLandmarker("IMAGE");
+  return lmImage;
+}
+
+/* ================= カメラ ================= */
+$("#btnStartCamera").addEventListener("click", async () => {
+  const st = $("#initStatus");
+  setStatus(st, "loadingLib", false);
+  try{ await getLm("VIDEO"); }
+  catch(e){ setStatus(st, "libFail", true); return; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    setStatus(st, "camFail", true); return;
+  }
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }, audio: false
+    });
+  }catch(e){ setStatus(st, "camFail", true); return; }
+  const v = $("#cam");
+  v.srcObject = stream;
+  try{ await v.play(); }catch(e){}
+  $("#noVideo").classList.add("hidden");
+  setStatus(st, "", false);
+  goStep(2);
+  startLoop();
+});
+function stopCamera(){
+  measuring = false;
+  if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
+  if(stream){ stream.getTracks().forEach(tr => { try{ tr.stop(); }catch(e){} }); stream = null; }
+  const v = $("#cam"); v.srcObject = null;
+  $("#noVideo").classList.remove("hidden");
+  goStep(1);
+}
+$("#btnStopCam1").addEventListener("click", stopCamera);
+
+function startLoop(){
+  if(rafId) return;
+  const tick = () => {
+    rafId = requestAnimationFrame(tick);
+    const v = $("#cam");
+    if(!lmVideo || !v.srcObject || v.readyState < 2) return;
+    const now = performance.now();
+    if(now <= lastTs) return;
+    lastTs = now;
+    let res = null;
+    try{ res = lmVideo.detectForVideo(v, now); }catch(e){ return; }
+    handleResults(res);
+  };
+  rafId = requestAnimationFrame(tick);
+}
+
+function handleResults(res){
+  const lm = res && res.faceLandmarks && res.faceLandmarks[0];
+  if(!lm){
+    S.faceState = "searching"; S.lastLm = null;
+    if(S.step === 3) renderMeasureStatus();
+    return;
+  }
+  S.lastLm = lm;
+  let blink = false;
+  const cats = res.faceBlendshapes && res.faceBlendshapes[0] && res.faceBlendshapes[0].categories;
+  if(cats){
+    for(const c of cats){
+      if((c.categoryName === "eyeBlinkLeft" || c.categoryName === "eyeBlinkRight") && c.score > 0.45) blink = true;
+    }
+  }
+  let yaw = 0, pitch = 0;
+  const m = res.facialTransformationMatrixes && res.facialTransformationMatrixes[0] && res.facialTransformationMatrixes[0].data;
+  if(m && m.length >= 16){
+    yaw   = Math.atan2(-m[2], m[0])  * 180 / Math.PI;
+    pitch = Math.atan2( m[6], m[10]) * 180 / Math.PI;
+  }
+  if(blink) S.faceState = "blink";
+  else if(Math.abs(yaw) > 15 || Math.abs(pitch) > 15) S.faceState = "notfront";
+  else S.faceState = "ok";
+
+  const v = $("#cam");
+  const W = v.videoWidth || 640, H = v.videoHeight || 480;
+  const P = i => ({ x: lm[i].x * W, y: lm[i].y * H });
+  const pr = P(468), pl = P(473), nose = P(168);
+  const pdPx = dist(pl, pr), monoLpx = dist(nose, pl), monoRpx = dist(nose, pr);
+  const dia = ((dist(P(469), P(471)) + dist(P(470), P(472))) / 2
+             + (dist(P(474), P(476)) + dist(P(475), P(477))) / 2) / 2;
+  if(dia > 0) S.lastIrisDiaPx = dia;
+
+  let factor = null;
+  if(S.method === "card" && S.mmPerPx) factor = S.mmPerPx;
+  else if(S.method === "iris" && dia > 0){ factor = IRIS_MM / dia; S.irisMmPerPx = factor; }
+
+  if(factor){
+    const cur = { pd: pdPx * factor, monoL: monoLpx * factor, monoR: monoRpx * factor };
+    if(S.step === 3){
+      $("#livePdVal").textContent = cur.pd.toFixed(1);
+      if(S.faceState === "ok" && measuring){
+        S.samples.push(cur);
+        renderMeasureProgress();
+        if(S.samples.length >= MIN_SAMPLES){ finishMeasure(); return; }
+      }
+    }
+  }
+  if(S.step === 3) renderMeasureStatus();
+}
+function renderMeasureStatus(){
+  const el = $("#measureStatus");
+  const key = { searching: "searching", blink: "blinkWarn", notfront: "frontWarn", ok: "goodPose" }[S.faceState] || "searching";
+  el.dataset.key = key;
+  el.textContent = t(key);
+  el.classList.toggle("ok", S.faceState === "ok");
+  el.classList.remove("err");
+}
+function renderMeasureProgress(){
+  $("#sampleCount").textContent = S.samples.length;
+  $("#sampleBar").style.width = Math.min(100, S.samples.length / MIN_SAMPLES * 100) + "%";
+  $("#btnFinishMeasure").disabled = S.samples.length < MIN_SAMPLES;
+}
+
+/* ================= 校正UI ================= */
+function syncMethodUI(){
+  const card = S.method === "card";
+  $("#cardCalibUI").classList.toggle("hidden", !card);
+  $("#irisCalibUI").classList.toggle("hidden", card);
+  $("#lblMethodCard").classList.toggle("sel", card);
+  $("#lblMethodIris").classList.toggle("sel", !card);
+  document.querySelectorAll('input[name="method"]').forEach(r => { r.checked = (r.value === S.method); });
+  if(S.step === 2) $("#cardFrame").classList.toggle("hidden", !card);
+  $("#liveApprox").classList.toggle("hidden", card);
+}
+document.querySelectorAll('input[name="method"]').forEach(r => {
+  r.addEventListener("change", () => { S.method = r.value; syncMethodUI(); });
+});
+function layoutCardFrame(){
+  const stage = $("#stage"), fr = $("#cardFrame");
+  if(!stage.clientWidth) return;
+  const pct = Number($("#cardScale").value) / 100;
+  const wPx = stage.clientWidth * pct;
+  fr.style.width = wPx + "px";
+  fr.style.height = (wPx / (85.60 / 53.98)) + "px";
+  if(!fr.style.left){ fr.style.left = "19%"; fr.style.top = "30%"; }
+}
+$("#cardScale").addEventListener("input", layoutCardFrame);
+window.addEventListener("resize", () => { if(S.step === 2) layoutCardFrame(); });
+(function(){
+  const fr = $("#cardFrame"), stage = $("#stage");
+  let drag = null;
+  fr.addEventListener("pointerdown", e => {
+    const sr = stage.getBoundingClientRect(), r = fr.getBoundingClientRect();
+    drag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+    fr.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  fr.addEventListener("pointermove", e => {
+    if(!drag) return;
+    const sr = stage.getBoundingClientRect();
+    let x = e.clientX - sr.left - drag.dx, y = e.clientY - sr.top - drag.dy;
+    x = Math.max(0, Math.min(sr.width - fr.clientWidth, x));
+    y = Math.max(0, Math.min(sr.height - fr.clientHeight, y));
+    fr.style.left = x + "px"; fr.style.top = y + "px";
+  });
+  fr.addEventListener("pointerup", () => { drag = null; });
+  fr.addEventListener("pointercancel", () => { drag = null; });
+})();
+const _origGoStep = goStep;
+goStep = function(n){ _origGoStep(n); if(n === 2) requestAnimationFrame(layoutCardFrame); };
+
+function enterMeasure(){
+  S.samples = [];
+  measuring = true;
+  $("#livePdVal").textContent = "--.-";
+  renderMeasureProgress();
+  S.faceState = "searching";
+  renderMeasureStatus();
+  goStep(3);
+}
+$("#btnCardDone").addEventListener("click", () => {
+  const v = $("#cam");
+  if(!v.videoWidth){ setStatus($("#calibStatus"), "needCam", true); return; }
+  const framePx = $("#cardFrame").clientWidth * (v.videoWidth / v.clientWidth);
+  if(framePx <= 0){ setStatus($("#calibStatus"), "needCam", true); return; }
+  S.mmPerPx = CARD_MM / framePx;
+  S.method = "card";
+  syncMethodUI();
+  enterMeasure();
+});
+$("#btnIrisDone").addEventListener("click", () => {
+  S.method = "iris"; S.mmPerPx = null;
+  syncMethodUI();
+  enterMeasure();
+});
+$("#btnBackCalib").addEventListener("click", () => { measuring = false; goStep(2); });
+$("#btnFinishMeasure").addEventListener("click", finishMeasure);
+
+function captureStillFromVideo(){
+  const v = $("#cam"), cv = $("#stillCanvas");
+  cv.width = v.videoWidth || 640; cv.height = v.videoHeight || 480;
+  cv.getContext("2d").drawImage(v, 0, 0, cv.width, cv.height);
+}
+function markersFromLandmarks(lm){
+  if(!lm) return { pl: {x:.38,y:.45}, pr: {x:.62,y:.45}, nose: {x:.5,y:.55}, cl: {x:.15,y:.5}, cr: {x:.85,y:.5} };
+  return {
+    pl:   { x: lm[473].x, y: lm[473].y },
+    pr:   { x: lm[468].x, y: lm[468].y },
+    nose: { x: lm[168].x, y: lm[168].y },
+    cl:   { x: 0.12, y: lm[168].y },
+    cr:   { x: 0.88, y: lm[168].y }
+  };
+}
+function finishMeasure(){
+  if(S.samples.length < MIN_SAMPLES) return;
+  measuring = false;
+  const pds = S.samples.map(s => s.pd).sort((a, b) => a - b);
+  const spread = quantileOf(pds, 0.75) - quantileOf(pds, 0.25);
+  let conf;
+  if(S.method === "card") conf = spread <= 0.5 ? "high" : (spread <= 1.2 ? "medium" : "low");
+  else conf = spread <= 0.8 ? "medium" : "low";
+  S.result = {
+    pd: medianOf(pds),
+    monoL: medianOf(S.samples.map(s => s.monoL)),
+    monoR: medianOf(S.samples.map(s => s.monoR)),
+    confidence: conf, spread, samples: S.samples.length, method: S.method
+  };
+  captureStillFromVideo();
+  S.markers = markersFromLandmarks(S.lastLm);
+  S.stillFrom = "video"; S.savedCurrent = false;
+  $("#photoMethodRow").classList.add("hidden");
+  buildMarkers(); renderResult(); goStep(4);
+  setStatus($("#saveStatus"), "capturing", false);
+}
+
+/* ================= 確認画面 ================= */
+const MARKER_KEYS = [
+  ["pl", "mkPL", ""], ["pr", "mkPR", ""], ["nose", "mkNose", "noseM"], ["cl", "mkCL", "cardM"], ["cr", "mkCR", "cardM"]
+];
+function availableMarkers(){
+  return MARKER_KEYS.filter(([k]) => k === "pl" || k === "pr" || k === "nose" || S.method === "card");
+}
+function buildMarkers(){
+  const stage = $("#confirmStage");
+  stage.querySelectorAll(".marker").forEach(el => el.remove());
+  if(!S.markers) return;
+  for(const [k, labelKey, cls] of availableMarkers()){
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "marker " + cls + (S.selMarker === k ? " sel" : "");
+    b.dataset.k = k;
+    b.innerHTML = `<span class="mlab">${t(labelKey)}</span>`;
+    b.addEventListener("pointerdown", e => {
+      S.selMarker = k; buildMarkerChips(); refreshMarkerSel();
+      const r0 = stage.getBoundingClientRect();
+      const offX = S.markers[k].x - (1 - (e.clientX - r0.left) / r0.width);
+      const offY = S.markers[k].y - ((e.clientY - r0.top) / r0.height);
+      const move = ev => {
+        const r = stage.getBoundingClientRect();
+        S.markers[k] = {
+          x: clamp01(1 - (ev.clientX - r.left) / r.width + offX),
+          y: clamp01((ev.clientY - r.top) / r.height + offY)
+        };
+        placeMarkers();
+      };
+      const up = () => {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+        recalcFromMarkers();
+      };
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up);
+      e.preventDefault();
+    });
+    stage.appendChild(b);
+  }
+  placeMarkers();
+  buildMarkerChips();
+}
+function refreshMarkerSel(){
+  document.querySelectorAll("#confirmStage .marker").forEach(el => {
+    el.classList.toggle("sel", el.dataset.k === S.selMarker);
+  });
+  buildMarkerChips();
+}
+function placeMarkers(){
+  if(!S.markers) return;
+  document.querySelectorAll("#confirmStage .marker").forEach(el => {
+    const p = S.markers[el.dataset.k];
+    if(!p) return;
+    el.style.left = ((1 - p.x) * 100) + "%";
+    el.style.top = (p.y * 100) + "%";
+  });
+}
+function buildMarkerChips(){
+  const wrap = $("#markerChips");
+  if(!wrap) return;
+  wrap.innerHTML = "";
+  if(!S.markers) return;
+  for(const [k, labelKey] of availableMarkers()){
+    const c = document.createElement("button");
+    c.type = "button";
+    c.className = "chip" + (S.selMarker === k ? " sel" : "");
+    c.textContent = t(labelKey);
+    c.addEventListener("click", () => { S.selMarker = k; refreshMarkerSel(); });
+    wrap.appendChild(c);
+  }
+}
+function nudge(dxVisual, dyVisual){
+  if(!S.markers || !S.markers[S.selMarker]) return;
+  const stage = $("#confirmStage");
+  const sx = 1 / Math.max(1, stage.clientWidth), sy = 1 / Math.max(1, stage.clientHeight);
+  const p = S.markers[S.selMarker];
+  p.x = clamp01(p.x - dxVisual * sx);
+  p.y = clamp01(p.y + dyVisual * sy);
+  placeMarkers();
+  recalcFromMarkers();
+}
+$("#padL").addEventListener("click", () => nudge(-1, 0));
+$("#padR").addEventListener("click", () => nudge( 1, 0));
+$("#padU").addEventListener("click", () => nudge( 0,-1));
+$("#padD").addEventListener("click", () => nudge( 0, 1));
+
+function recalcFromMarkers(){
+  if(!S.markers || !S.result) return;
+  const cv = $("#stillCanvas"), W = cv.width, H = cv.height;
+  const P = k => ({ x: S.markers[k].x * W, y: S.markers[k].y * H });
+  let factor = null;
+  if(S.method === "card"){
+    const cardPx = Math.abs(P("cr").x - P("cl").x);
+    if(cardPx < 5) return;
+    factor = CARD_MM / cardPx;
+  }else{
+    factor = S.irisMmPerPx;
+    if(!factor) return;
+  }
+  S.result.pd    = dist(P("pl"), P("pr")) * factor;
+  S.result.monoL = dist(P("nose"), P("pl")) * factor;
+  S.result.monoR = dist(P("nose"), P("pr")) * factor;
+  S.result.method = S.method;
+  if(S.method === "iris" && S.result.confidence === "high") S.result.confidence = "medium";
+  S.savedCurrent = false;
+  renderResult();
+}
+$("#btnRecalc").addEventListener("click", recalcFromMarkers);
+
+function syncPhotoMethodUI(){
+  const card = S.method === "card";
+  $("#lblPMethodCard").classList.toggle("sel", card);
+  $("#lblPMethodIris").classList.toggle("sel", !card);
+  document.querySelectorAll('input[name="pmethod"]').forEach(r => { r.checked = (r.value === S.method); });
+}
+document.querySelectorAll('input[name="pmethod"]').forEach(r => {
+  r.addEventListener("change", () => {
+    if(!S.result) return;
+    S.method = r.value;
+    if(S.method === "iris") S.result.confidence = S.result.confidence === "high" ? "medium" : "low";
+    else if(S.stillFrom === "photo" && S.result.confidence === "low") S.result.confidence = "medium";
+    buildMarkers(); recalcFromMarkers(); syncPhotoMethodUI(); renderResult();
+  });
+});
+
+function renderResult(){
+  const r = S.result;
+  if(!r) return;
+  $("#resPd").textContent = r.pd.toFixed(1);
+  $("#resMonoL").textContent = r.monoL.toFixed(1);
+  $("#resMonoR").textContent = r.monoR.toFixed(1);
+  const c = $("#resConf");
+  c.textContent = t("conf" + r.confidence[0].toUpperCase() + r.confidence.slice(1));
+  c.className = "badge " + r.confidence;
+  $("#resSpread").textContent = r.spread.toFixed(1);
+  $("#resMethod").textContent = r.method === "card" ? t("methodCard") : t("methodIris");
+  $("#resSamples").textContent = r.samples;
+  $("#resApprox").classList.toggle("hidden", r.method !== "iris");
+}
+
+/* ================= 写真経路 ================= */
+$("#photoInput").addEventListener("change", async ev => {
+  const file = ev.target.files && ev.target.files[0];
+  ev.target.value = "";
+  if(!file) return;
+  const st = $("#initStatus");
+  setStatus(st, "loadingLib", false);
+  let lm;
+  try{ lm = await getLm("IMAGE"); }
+  catch(e){ setStatus(st, "libFail", true); return; }
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  try{ await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; }); }
+  catch(e){ URL.revokeObjectURL(url); setStatus(st, "noFacePhoto", true); return; }
+  const maxW = 1280;
+  const scale = Math.min(1, maxW / img.naturalWidth);
+  const cv = $("#stillCanvas");
+  cv.width = Math.round(img.naturalWidth * scale);
+  cv.height = Math.round(img.naturalHeight * scale);
+  cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+  URL.revokeObjectURL(url);
+  let res = null;
+  try{ res = lm.detect(cv); }catch(e){}
+  const lmks = res && res.faceLandmarks && res.faceLandmarks[0];
+  if(!lmks){ setStatus(st, "noFacePhoto", true); return; }
+  const W = cv.width, H = cv.height;
+  const P = i => ({ x: lmks[i].x * W, y: lmks[i].y * H });
+  const dia = ((dist(P(469), P(471)) + dist(P(470), P(472))) / 2
+             + (dist(P(474), P(476)) + dist(P(475), P(477))) / 2) / 2;
+  if(dia > 0) S.irisMmPerPx = IRIS_MM / dia;
+  S.lastLm = lmks;
+  S.method = "iris";
+  S.markers = markersFromLandmarks(lmks);
+  const f = S.irisMmPerPx || 0.05;
+  S.result = {
+    pd: dist(P(473), P(468)) * f,
+    monoL: dist(P(168), P(473)) * f,
+    monoR: dist(P(168), P(468)) * f,
+    confidence: "low", spread: 0, samples: 1, method: "iris"
+  };
+  S.stillFrom = "photo"; S.savedCurrent = false;
+  $("#photoMethodRow").classList.remove("hidden");
+  syncPhotoMethodUI();
+  buildMarkers(); renderResult(); goStep(4);
+  setStatus(st, "photoLoaded", false);
+  setStatus($("#saveStatus"), "", false);
+});
+
+/* ================= 保存・再計測 ================= */
+$("#btnSave").addEventListener("click", () => {
+  const st = $("#saveStatus");
+  const r = S.result;
+  if(!r) return;
+  if(S.savedCurrent){ setStatus(st, "alreadySaved", false); return; }
+  const ok = r.pd >= 30 && r.pd <= 100 && r.monoL >= 10 && r.monoL <= 60
+          && r.monoR >= 10 && r.monoR <= 60 && r.spread >= 0 && r.spread <= 50;
+  if(!ok){ setStatus(st, "saveRangeErr", true); return; }
+  const h = loadHistory();
+  h.unshift({
+    pd_mm: +r.pd.toFixed(2),
+    mono_left_mm: +r.monoL.toFixed(2),
+    mono_right_mm: +r.monoR.toFixed(2),
+    method: r.method, confidence: r.confidence,
+    spread_mm: +r.spread.toFixed(2),
+    sample_count: r.samples, created_at: Date.now()
+  });
+  storeHistory(h);
+  S.savedCurrent = true;
+  renderHistory();
+  setStatus(st, "savedOk", false);
+});
+$("#btnAgain").addEventListener("click", () => {
+  S.samples = []; S.result = null; S.savedCurrent = false;
+  setStatus($("#saveStatus"), "", false);
+  if(S.stillFrom === "video" && stream) goStep(2);
+  else goStep(1);
+});
+
+/* ================= 初期化 ================= */
+applyI18n();
+goStep(1);
+syncMethodUI();
+</script>
+</body>
+</html>
